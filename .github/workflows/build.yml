@@ -28,9 +28,21 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython
 
+      - name: Auto-Accept Android SDK Licenses
+        run: |
+          # Автоматично приймаємо всі ліцензії Google Android SDK до початку збірки
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          # Створюємо директорію для ліцензій та записуємо туди згоду, щоб Google дозволив завантаження aidl
+          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/licenses
+          echo -e "\n893a416a975af43a3109d76e7c1269b0e56caa97\n24333f1a103b1de411902fd8574ec44744036102\n84831b9409646a918e30573bab4c9c91346d8abd" > /home/runner/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > /home/runner/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+
       - name: Build Android APK
         run: |
-          # Запускаємо збірку напряму через встановлений buildozer без Docker
+          # На всякий випадок чистимо старі забаговані хвости
+          buildozer android clean
+          # Запускаємо чисту збірку
           buildozer -v android debug
 
       - name: Upload Finished APK
