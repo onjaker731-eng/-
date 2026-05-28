@@ -23,26 +23,23 @@ jobs:
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev python3-pip patch
 
-      - name: Install Buildozer and Cython
+      - name: Install Buildozer, Cython and Virtualenv
         run: |
           pip install --upgrade pip
-          pip install buildozer cython
+          # Додаємо virtualenv, який критично необхідний для ізоляції збірок python-for-android
+          pip install buildozer cython virtualenv
 
       - name: Auto-Accept Android SDK Licenses
         run: |
-          # Автоматично приймаємо всі ліцензії Google Android SDK до початку збірки
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
-          # Створюємо директорію для ліцензій та записуємо туди згоду, щоб Google дозволив завантаження aidl
           mkdir -p /home/runner/.buildozer/android/platform/android-sdk/licenses
           echo -e "\n893a416a975af43a3109d76e7c1269b0e56caa97\n24333f1a103b1de411902fd8574ec44744036102\n84831b9409646a918e30573bab4c9c91346d8abd" > /home/runner/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
           echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > /home/runner/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
 
       - name: Build Android APK
         run: |
-          # На всякий випадок чистимо старі забаговані хвости
-          buildozer android clean
-          # Запускаємо чисту збірку
+          # Запускаємо пряму збірку без попереднього чищення неіснуючих папок
           buildozer -v android debug
 
       - name: Upload Finished APK
